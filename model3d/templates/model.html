@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Model Result</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<div>模型效果展示</div>
+    <div id="model-container" style="width: 100%; height: 100vh;"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        var modelUrl = "{{ model_url }}";
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var light = new THREE.DirectionalLight(0xffffff, 4);
+        var ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xffffff);
+        document.getElementById('model-container').appendChild(renderer.domElement);
+        light.position.set(0, 1, 1).normalize();
+        scene.add(light);
+        scene.add(ambientLight);
+        var loader = new THREE.GLTFLoader();
+        loader.load(modelUrl, function(gltf) {
+            scene.add(gltf.scene);
+            gltf.scene.position.set(0, 0, 0);
+            gltf.scene.scale.set(1, 1, 1);
+        }, undefined, function(error) {
+            console.error(error);
+        });
+
+        // 相机位置
+        camera.position.z = 5;
+
+        // 添加OrbitControls
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // 使控制器具有阻尼效果
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = true;
+
+        // 渲染函数
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); // 仅当具有阻尼或自动旋转时才需要
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 响应窗口大小调整
+        window.addEventListener('resize', function() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+</body>
+</html>
