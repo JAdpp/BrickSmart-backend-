@@ -99,7 +99,7 @@ def generate_model(request):
     else:
         # 如果请求方法不是POST，创建并返回提示页面和表单
         form = PromptForm()
-        return render(request, 'prompt.html', {'form': form, 'components': components})
+    return render(request, 'prompt.html', {'form': form, 'components': components})
 
 
 # 视图函数，用于图生3D模型
