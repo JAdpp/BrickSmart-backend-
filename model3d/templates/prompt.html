@@ -2,12 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Generate Model</title>
+    <title>text to 3D</title>
 </head>
+<style>
+    h3 {
+        margin-bottom: 20px; /* 空出更多或更少的空间 */
+    }
+    #components {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+    #components div {
+        flex-basis: 18%;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    #components img {
+        width: 100%;
+        height: auto;
+    }
+</style>
 <body>
     <form method="post" action="{% url 'generate_model' %}">
         {% csrf_token %}
         {{ form.as_p }}
+        <div id="components">
+            <h3>选择元件:</h3>
+            {% for component in components %}
+            <div>
+                <img src="{{ MEDIA_URL }}{{ component.imgFile.url }}" style="width:100px; height:100px;">
+                <p>{{ component.caption }} ({{ component.sn }})</p>
+                <!--<p>类型: {{ component.get_btype_display }} | 颜色: {{ component.get_bcolor_display }}</p>-->
+                <label for="qty_{{ component.pid }}">数量:</label>
+                <input type="number" id="qty_{{ component.pid }}" name="component_qty_{{ component.pid }}" min="0" value="0">
+            </div>
+            {% endfor %}
+        </div>
+        
         <button type="submit">Generate</button>
     </form>
 </body>

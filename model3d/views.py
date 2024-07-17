@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from .models import ModelTask
+from .models import ModelTask, ComponentList
 from .forms import PromptForm, ImageUploadForm
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -14,10 +14,12 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
 
-# model.py
-# @csrf_exempt
+# views.py
+@csrf_exempt
 # 视图函数，用于文生3D模型
 def generate_model(request):
+    # 获取所有元件
+    components = ComponentList.objects.all() 
     # 检查请求方法
     if request.method == 'POST':
         # 创建并验证表单
@@ -25,17 +27,30 @@ def generate_model(request):
         if form.is_valid():
             # 提取用户输入的提示信息
             prompt = form.cleaned_data['prompt']
+            negative_prompt = "low quality, low resolution, low poly, ugly"
             
+            # 构建元件信息列表
+            selected_components = []
+            for component in components:
+                try:
+                    component_qty = int(request.POST.get(f'component_qty_{component.pid}', 0))
+                    if int(component_qty) > 0:
+                        selected_components.append({'sn': component.sn, 'qty': component_qty})
+                except ValueError:
+                    continue  # 如果转换失败，跳过这个元件
+            # JSON化元件信息
+            bricks_json = json.dumps(selected_components)
+
             # 调用API
             api_url = 'https://api.tripo3d.ai/v2/openapi/task'
-            api_key = "tsk_S9zAZ08NFPuKt9le3qqr6rDbHUQO38dVoqm7zOf1U49"
+            api_key = "tsk_t3rmrzT7v4Pow6t2D3jK1h8I1S0bCecUZ1EjTPz7jaI" #设置API秘钥
             # 构建请求头，包含API密钥
             header = {
                 'Authorization': f'Bearer {api_key}'
             }
             
             # 发送POST请求到API
-            response = requests.post(api_url, json={'type': 'text_to_model', 'prompt': prompt}, headers=header)
+            response = requests.post(api_url, json={'type': 'text_to_model', 'prompt': prompt, 'negative_prompt': negative_prompt}, headers=header)
             # 解析API响应为JSON
             create_response_data = response.json()
             # 提取任务ID
@@ -72,7 +87,7 @@ def generate_model(request):
                 ModelTask.objects.create(
                     task_id=task_id,
                     prompt=prompt,
-                    bricks="default",  # Replace with actual value as needed
+                    bricks=bricks_json,  # 使用JSON字符串存储组件信息
                     model_download_url= f"3D-model/{task_id}.glb",
                     image_download_url= f"rendered-image/{task_id}.webp",
                     lego_url="",  # Assuming this gets set elsewhere
@@ -84,13 +99,14 @@ def generate_model(request):
     else:
         # 如果请求方法不是POST，创建并返回提示页面和表单
         form = PromptForm()
-    
-    # 返回提示页面
-    return render(request, 'prompt.html', {'form': form})
+        return render(request, 'prompt.html', {'form': form, 'components': components})
+
 
 # 视图函数，用于图生3D模型
 @csrf_exempt # 使用csrf_exempt装饰器，允许跨站请求伪造保护被禁用
 def generate_model_image(request):
+    # 获取所有元件
+    components = ComponentList.objects.all() 
     if request.method == 'POST':  # 判断请求方法是否为POST
         form = ImageUploadForm(request.POST, request.FILES)
         print(request.FILES) # 打印上传的文件信息
@@ -98,10 +114,22 @@ def generate_model_image(request):
         if form.is_valid(): # 判断表单是否有效
             image = form.cleaned_data['image'] # 获取上传的图片
             image_path = default_storage.save('uploads/' + image.name, ContentFile(image.read())) # 将图片保存到指定路径
+
+            # 构建元件信息列表
+            selected_components = []
+            for component in components:
+                try:
+                    component_qty = int(request.POST.get(f'component_qty_{component.pid}', 0))
+                    if int(component_qty) > 0:
+                        selected_components.append({'sn': component.sn, 'qty': component_qty})
+                except ValueError:
+                    continue  # 如果转换失败，跳过这个元件
+            # JSON化元件信息
+            bricks_json = json.dumps(selected_components)
             
             # 设置API的URL和密钥
             api_url = "https://api.tripo3d.ai/v2/openapi/upload"
-            api_key = "tsk_S9zAZ08NFPuKt9le3qqr6rDbHUQO38dVoqm7zOf1U49"
+            api_key = "tsk_t3rmrzT7v4Pow6t2D3jK1h8I1S0bCecUZ1EjTPz7jaI"
             headers = {
                 "Authorization": f"Bearer {api_key}"
             }
@@ -169,7 +197,7 @@ def generate_model_image(request):
                     ModelTask.objects.create(
                         task_id=task_id,
                         prompt=image_path,
-                        bricks="default",  # Replace with actual value as needed
+                        bricks=bricks_json,  # 使用JSON字符串存储组件信息
                         model_download_url= f"3D-model/{task_id}.glb",
                         image_download_url= f"rendered-image/{task_id}.webp",
                         lego_url="",  # Assuming this gets set elsewhere
@@ -182,7 +210,7 @@ def generate_model_image(request):
         form = ImageUploadForm()
 
     # 返回上传页面或者表单错误信息
-    return render(request, 'upload.html', {'form': form})
+    return render(request, 'upload.html', {'form': form, 'components': components})
 
 
 def download_and_save_file(url, folder, task_id, extension):

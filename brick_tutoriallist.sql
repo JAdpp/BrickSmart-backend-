@@ -1,0 +1,1 @@
+INSERT INTO `model3d_tutoriallist` (`pid`, `title`, `description`, `componentSum`, `imgFile`, `key`, `createTime_Internal`, `alterTime_Internal`) VALUES (1, 'big_house', 'Teach you how to build a big house. ', 44, 'tutotial/tuto1.png', NULL, '2024-06-27 03:09:12.985327', '2024-06-27 11:57:17.540592');
