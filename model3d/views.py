@@ -16,7 +16,7 @@ from django.core.files.base import ContentFile
 
 # model.py
 # @csrf_exempt
-# 视图函数，用于文生图生成模型
+# 视图函数，用于文生3D模型
 def generate_model(request):
     # 检查请求方法
     if request.method == 'POST':
@@ -88,7 +88,7 @@ def generate_model(request):
     # 返回提示页面
     return render(request, 'prompt.html', {'form': form})
 
-# 视图函数，用于图生图生成模型
+# 视图函数，用于图生3D模型
 @csrf_exempt # 使用csrf_exempt装饰器，允许跨站请求伪造保护被禁用
 def generate_model_image(request):
     if request.method == 'POST':  # 判断请求方法是否为POST
