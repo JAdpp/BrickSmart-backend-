@@ -1,2 +1,2 @@
 # BrickSmart-backend-
-the backend of BrickSmart project
+The backend of BrickSmart project, using Python and Django 5
