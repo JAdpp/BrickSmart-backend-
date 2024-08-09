@@ -30,14 +30,14 @@ import base64
 openai_api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 #七牛云密钥
-access_key = 'WF88Hagl_Oev5A7qj8Dp0bLdkPCJq9PPISNfpABN'
-secret_key = 'TJobSkP14PD5Qn9QGab0g8bIQeLBn9TDBbncjvXw'
+access_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+secret_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 # 构建七牛云鉴权对象
 q = qiniu.Auth(access_key, secret_key)
 
 # 要上传的七牛云空间名称
-bucket_name = 'stay33'
+bucket_name = 'xxxxxx'
 
 #七牛云上传函数
 def upload_file_to_qiniu(local_file_path, key):
@@ -124,7 +124,7 @@ def generate_model(request):
             
             # 调用Tripo3D API创建任务，将描述文本转换为3D模型
             api_url = 'https://api.tripo3d.ai/v2/openapi/task'
-            api_key = "tsk_yZUd8eTShQwltj-XZY8Et4P3WWBWNPouEg1O23OzfS0"  # 设置Tripo3D的API密钥
+            api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # 设置Tripo3D的API密钥
             header = {
                 'Authorization': f'Bearer {api_key}'
             }
@@ -219,7 +219,7 @@ def generate_model_image(request):
 
             # 设置API的URL和密钥
             api_url = "https://api.tripo3d.ai/v2/openapi/upload"
-            api_key = "tsk_S9zAZ08NFPuKt9le3qqr6rDbHUQO38dVoqm7zOf1U49"
+            api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             headers = {
                 "Authorization": f"Bearer {api_key}"
             }
