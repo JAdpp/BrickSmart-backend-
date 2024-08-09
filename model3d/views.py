@@ -27,7 +27,7 @@ from django.conf import settings
 import base64
 
 #OpenAI的API密钥
-openai_api_key = 'sk-proj-loBdggBFRj8rpKTTIt9mT3BlbkFJsE34bxqAxKsVOdZHcQkf'
+openai_api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 #七牛云密钥
 access_key = 'WF88Hagl_Oev5A7qj8Dp0bLdkPCJq9PPISNfpABN'
