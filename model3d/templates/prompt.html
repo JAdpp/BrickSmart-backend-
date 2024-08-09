@@ -3,29 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>text to 3D</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        h3 {
+            margin-bottom: 20px;
+        }
+        #components {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        #components div {
+            flex-basis: 18%;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #components img {
+            width: 100%;
+            height: auto;
+        }
+        #instructions img {
+            max-width: 100%;
+        }
+        #instructions p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
 </head>
-<style>
-    h3 {
-        margin-bottom: 20px; /* 空出更多或更少的空间 */
-    }
-    #components {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-    }
-    #components div {
-        flex-basis: 18%;
-        box-sizing: border-box;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    #components img {
-        width: 100%;
-        height: auto;
-    }
-</style>
 <body>
-    <form method="post" action="{% url 'generate_model' %}">
+    <form id="modelForm" method="post" action="{% url 'generate_model' %}">
         {% csrf_token %}
         {{ form.as_p }}
         <div id="components">
@@ -41,7 +49,83 @@
             {% endfor %}
         </div>
         
-        <button type="submit">Generate</button>
+        <button type="submit">生成3D模型</button>
     </form>
+
+    <div id="modelResult">
+        <!-- 这里会显示生成的3D模型信息 -->
+    </div>
+
+    <button id="generateLego" style="display:none;">生成方案</button>
+
+    <div id="instructions" style="display:none;">
+        <img id="stepImage" src="" alt="Step Image">
+        <p id="stepInstruction"></p>
+        <button id="nextStep" style="display:none;">下一步</button>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#modelForm').on('submit', function(event){
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "generate_model" %}',
+                    data: $(this).serialize(),
+                    success: function(response){
+                        $('#modelResult').html('<p>Model Generated: <a href="' + response.model_filename + '" target="_blank">' + response.model_filename + '</a></p><p>Image: <a href="' + response.image_filename + '" target="_blank">' + response.image_filename + '</a></p>');
+                        $('#generateLego').data('model_path', response.local_model_path);
+                        $('#generateLego').data('task_id', response.task_id);
+                        $('#generateLego').show();
+                    },
+                    error: function(response){
+                        $('#modelResult').html('<p>Error: ' + response.responseText + '</p>');
+                    }
+                });
+            });
+
+            $('#generateLego').on('click', function(){
+                var model_path = $(this).data('model_path');
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "generate_lego_tutorial" %}',
+                    data: {
+                        'model_path': model_path,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response){
+                        $('#generateLego').hide();
+                        $('#instructions').show();
+                        $('#instructions').data('instructions', response.instructions);
+                        $('#instructions').data('currentStep', 0);
+                        showStep(0);
+                    },
+                    error: function(response){
+                        alert('Error: ' + response.responseText);
+                    }
+                });
+            });
+
+            $('#nextStep').on('click', function(){
+                var currentStep = $('#instructions').data('currentStep');
+                currentStep++;
+                showStep(currentStep);
+            });
+
+            function showStep(step) {
+                var instructions = $('#instructions').data('instructions');
+                if (step < instructions.length) {
+                    var instruction = instructions[step];
+                    $('#stepImage').attr('src', instruction.image_url);
+                    $('#stepInstruction').text(instruction.instruction);
+                    $('#instructions').data('currentStep', step);
+                    $('#nextStep').show();
+                } else {
+                    $('#nextStep').hide();
+                    alert('已完成所有步骤');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
