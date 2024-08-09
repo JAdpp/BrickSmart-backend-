@@ -43,7 +43,7 @@ def generate_model(request):
 
             # 调用API
             api_url = 'https://api.tripo3d.ai/v2/openapi/task'
-            api_key = "tsk_t3rmrzT7v4Pow6t2D3jK1h8I1S0bCecUZ1EjTPz7jaI" #设置API秘钥
+            api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" #设置API秘钥
             # 构建请求头，包含API密钥
             header = {
                 'Authorization': f'Bearer {api_key}'
@@ -129,7 +129,7 @@ def generate_model_image(request):
             
             # 设置API的URL和密钥
             api_url = "https://api.tripo3d.ai/v2/openapi/upload"
-            api_key = "tsk_t3rmrzT7v4Pow6t2D3jK1h8I1S0bCecUZ1EjTPz7jaI"
+            api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             headers = {
                 "Authorization": f"Bearer {api_key}"
             }
